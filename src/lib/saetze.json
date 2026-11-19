@@ -1,0 +1,23 @@
+{
+	"paare": [
+		{ "id": "sonja-malt", "kurz": { "de": "Sonja malt.", "zh": "索尼娅在画画。" }, "lang": { "de": "Sonja malt ein Haus.", "zh": "索尼娅在画一座房子。" } },
+		{ "id": "papa-raucht", "kurz": { "de": "Papa raucht.", "zh": "爸爸在抽烟。" }, "lang": { "de": "Es raucht.", "zh": "冒烟了。" } },
+		{ "id": "papa-saegt", "kurz": { "de": "Papa sägt.", "zh": "爸爸在锯东西。" }, "lang": { "de": "Papa sägt in der Garage.", "zh": "爸爸在车库里锯木头。" } },
+		{ "id": "frosch-springt", "kurz": { "de": "Der Frosch springt.", "zh": "青蛙在跳。" }, "lang": { "de": "Der Frosch springt hoch.", "zh": "青蛙跳得很高。" } },
+		{ "id": "timo-kocht", "kurz": { "de": "Timo kocht.", "zh": "蒂莫在做饭。" }, "lang": { "de": "Timo kocht Fisch.", "zh": "蒂莫在煮鱼。" } },
+		{ "id": "oma-naeht", "kurz": { "de": "Oma näht.", "zh": "奶奶在缝东西。" }, "lang": { "de": "Oma näht eine Hose.", "zh": "奶奶在缝裤子。" } },
+		{ "id": "fisch-stinkt", "kurz": { "de": "Der Fisch stinkt.", "zh": "鱼很臭。" }, "lang": { "de": "Es stinkt.", "zh": "好臭啊。" } },
+		{ "id": "haus-brennt", "kurz": { "de": "Das Haus brennt.", "zh": "房子着火了。" }, "lang": { "de": "Es brennt.", "zh": "着火了。" } },
+		{ "id": "timo-schlaeft", "kurz": { "de": "Timo schläft.", "zh": "蒂莫在睡觉。" }, "lang": { "de": "Timo schläft im Bett.", "zh": "蒂莫在床上睡觉。" } },
+		{ "id": "sonja-spielt", "kurz": { "de": "Sonja spielt.", "zh": "索尼娅在玩。" }, "lang": { "de": "Sonja spielt hinter dem Haus.", "zh": "索尼娅在房子后面玩。" } },
+		{ "id": "opa-angelt", "kurz": { "de": "Opa angelt.", "zh": "爷爷在钓鱼。" }, "lang": { "de": "Opa angelt im See.", "zh": "爷爷在湖里钓鱼。" } },
+		{ "id": "hasso-frisst", "kurz": { "de": "Hasso frisst.", "zh": "哈索在吃东西。" }, "lang": { "de": "Hasso frisst vor dem Haus.", "zh": "哈索在房子前面吃饭。" } },
+		{ "id": "sonja-singt", "kurz": { "de": "Sonja singt.", "zh": "索尼娅在唱歌。" }, "lang": { "de": "Sonja singt laut.", "zh": "索尼娅大声唱歌。" } },
+		{ "id": "apfel-schmeckt", "kurz": { "de": "Der Apfel schmeckt.", "zh": "苹果很好吃。" }, "lang": { "de": "Der Apfel schmeckt sauer.", "zh": "苹果很酸。" } },
+		{ "id": "timo-faehrt", "kurz": { "de": "Timo fährt.", "zh": "蒂莫在骑车。" }, "lang": { "de": "Timo fährt schnell.", "zh": "蒂莫骑车骑得很快。" } }
+	],
+	"rueckmeldungen": {
+		"richtig": { "de": "Richtig!", "zh": "答对了！" },
+		"nochmal": { "de": "Probier's nochmal!", "zh": "再试一次！" }
+	}
+}

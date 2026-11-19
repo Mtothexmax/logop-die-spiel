@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { paare, rueckmeldungen, bildKurz, bildLang, audioPfad, type Paar } from './saetze';
+	import { paare, rueckmeldungen, bildPfad, satzAudio, audioPfad, type Paar, type Art } from './saetze';
 	import { einstellung, t } from './sprache.svelte';
 	import { sprich, stopp, ton } from './audio';
 	import Bild from './Bild.svelte';
@@ -8,11 +8,12 @@
 
 	/**
 	 * Ablauf: Alle Satzpaare kommen in zufälliger Reihenfolge. Beide Bilder stehen zufällig
-	 * oben/unten (Querformat: links/rechts). Vorgelesen wird nur der spezifische Satz; das Kind
-	 * tippt das passende Bild an. Die Stimme sagt "Richtig!" oder "Probier's nochmal!".
+	 * oben/unten (Querformat: links/rechts). Vorgelesen wird zufällig der kurze oder der
+	 * spezifische Satz; das Kind tippt das passende Bild an. Die Stimme sagt "Richtig!" oder
+	 * "Probier's nochmal!".
 	 */
 	type Option = { bild: string; richtig: boolean };
-	type Runde = { paar: Paar; optionen: Option[] };
+	type Runde = { paar: Paar; art: Art; optionen: Option[] };
 
 	function mischen<T>(a: T[]): T[] {
 		const b = [...a];
@@ -24,13 +25,17 @@
 	}
 
 	function neueRunden(): Runde[] {
-		return mischen(paare).map((paar) => ({
-			paar,
-			optionen: mischen([
-				{ bild: bildLang(paar), richtig: true },
-				{ bild: bildKurz(paar), richtig: false }
-			])
-		}));
+		return mischen(paare).map((paar) => {
+			const art: Art = Math.random() < 0.5 ? 'kurz' : 'lang';
+			return {
+				paar,
+				art,
+				optionen: mischen<Option>([
+					{ bild: bildPfad(paar, 'kurz'), richtig: art === 'kurz' },
+					{ bild: bildPfad(paar, 'lang'), richtig: art === 'lang' }
+				])
+			};
+		});
 	}
 
 	let runden = $state.raw(neueRunden());
@@ -45,15 +50,15 @@
 
 	const runde = $derived(runden[nr]);
 	const sprache = $derived(einstellung.sprache);
-	const satz = $derived(runde.paar.satz[sprache]);
+	const satz = $derived(runde.paar[runde.art][sprache]);
 
-	function sage(id: string, text: string) {
-		return sprich(audioPfad(id, sprache), text, sprache);
+	function sage(id: 'richtig' | 'nochmal') {
+		return sprich(audioPfad(id, sprache), rueckmeldungen[id][sprache], sprache);
 	}
 
 	async function anhoeren() {
 		spricht = true;
-		await sage(runde.paar.id, satz);
+		await sprich(satzAudio(runde.paar, runde.art, sprache), satz, sprache);
 		spricht = false;
 	}
 
@@ -65,8 +70,6 @@
 		return stopp;
 	});
 
-	const [richtig, nochmal] = rueckmeldungen;
-
 	async function waehle(o: Option) {
 		if (geloest || gesperrt) return;
 		gesperrt = true;
@@ -75,7 +78,7 @@
 			geloest = true;
 			if (ersterVersuch) punkte++;
 			ton(true);
-			await sage(richtig.id, richtig.satz[sprache]);
+			await sage('richtig');
 			await new Promise((r) => setTimeout(r, 900));
 			gesperrt = false;
 			naechste();
@@ -83,7 +86,7 @@
 			ersterVersuch = false;
 			falsch = o.bild;
 			ton(false);
-			await sage(nochmal.id, nochmal.satz[sprache]);
+			await sage('nochmal');
 			falsch = null;
 			gesperrt = false;
 			anhoeren();
@@ -160,7 +163,7 @@
 					<span class="material-symbols-rounded shrink-0 text-3xl">check_circle</span>{satz}
 				</span>
 			{:else if falsch}
-				<span class="pop text-xl font-extrabold text-red-500">{nochmal.satz[sprache]}</span>
+				<span class="pop text-xl font-extrabold text-red-500">{rueckmeldungen.nochmal[sprache]}</span>
 			{/if}
 		</div>
 

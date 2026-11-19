@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { paare, bildLang, audioPfad, sprachen } from '../lib/saetze';
+	import { paare, bildPfad, satzAudio, sprachen, type Art } from '../lib/saetze';
 	import { einstellung, setzeSprache, t } from '../lib/sprache.svelte';
 	import { sprich } from '../lib/audio';
 	import Bild from '../lib/Bild.svelte';
@@ -22,6 +22,7 @@
 	}
 
 	const sprachName = { de: 'Deutsch', zh: '中文' };
+	const arten: Art[] = ['kurz', 'lang'];
 </script>
 
 <svelte:window onpopstate={() => (spielLaeuft = false)} />
@@ -74,16 +75,19 @@
 			<h2 class="px-1 text-sm font-extrabold tracking-wide text-stone-400 uppercase">{t().alleSaetze}</h2>
 			<ul class="grid grid-cols-1 gap-2 sm:grid-cols-2">
 				{#each paare as p (p.id)}
-					<li>
-						<button
-							class="press flex w-full items-center gap-3 rounded-2xl bg-white p-2 pr-3 text-left shadow-sm"
-							onclick={() => sprich(audioPfad(p.id, einstellung.sprache), p.satz[einstellung.sprache], einstellung.sprache)}
-							aria-label={t().anhoeren}
-						>
-							<div class="w-14 shrink-0"><Bild src={bildLang(p)} alt="" klein /></div>
-							<p class="min-w-0 flex-1 text-lg leading-tight font-extrabold">{p.satz[einstellung.sprache]}</p>
-							<span class="material-symbols-rounded text-3xl text-sky-500">volume_up</span>
-						</button>
+					<li class="flex flex-col gap-1 rounded-2xl bg-white p-1.5 shadow-sm">
+						{#each arten as art}
+							{@const text = p[art][einstellung.sprache]}
+							<button
+								class="press flex w-full items-center gap-3 rounded-xl p-1 pr-2 text-left"
+								onclick={() => sprich(satzAudio(p, art, einstellung.sprache), text, einstellung.sprache)}
+								aria-label={t().anhoeren}
+							>
+								<div class="w-14 shrink-0"><Bild src={bildPfad(p, art)} alt="" klein /></div>
+								<p class="min-w-0 flex-1 text-lg leading-tight font-extrabold">{text}</p>
+								<span class="material-symbols-rounded text-3xl text-sky-500">volume_up</span>
+							</button>
+						{/each}
 					</li>
 				{/each}
 			</ul>

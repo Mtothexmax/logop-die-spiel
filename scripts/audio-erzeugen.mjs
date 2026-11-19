@@ -22,12 +22,20 @@ const neu = process.argv.includes('--neu');
 const nurSprache = arg('--sprache');
 const nurId = arg('--nur');
 
-// Texte aus src/lib/saetze.ts lesen (eine Quelle für App und Audio)
-const quelle = fs.readFileSync('src/lib/saetze.ts', 'utf8');
-const eintraege = [...quelle.matchAll(/id: '([a-z-]+)', satz: \{ de: (['"])(.*?)\2, zh: '(.*?)' \}/g)].map(
-	(m) => ({ id: m[1], de: m[3], zh: m[4] })
-);
-if (eintraege.length === 0) throw new Error('Keine Sätze in src/lib/saetze.ts gefunden');
+// Texte aus src/lib/saetze.json lesen (eine Quelle für App und Audio)
+const daten = JSON.parse(fs.readFileSync('src/lib/saetze.json', 'utf8'));
+const eintraege = [
+	...daten.paare.flatMap((p) => [
+		{ id: `${p.id}-kurz`, ...p.kurz },
+		{ id: `${p.id}-lang`, ...p.lang }
+	]),
+	...Object.entries(daten.rueckmeldungen).map(([id, t]) => ({ id, ...t }))
+];
+
+// Betonung am Satzende nach unten: Punkt wird für die Stimme zum Ausrufezeichen,
+// Ausrufezeichen zum Punkt (der angezeigte Text bleibt unverändert).
+const tausch = { '.': '!', '!': '.', '。': '！', '！': '。' };
+const sprechText = (t) => t.replace(/[.!。！]$/, (z) => tausch[z]);
 
 for (const sprache of Object.keys(STIMMEN)) {
 	if (nurSprache && sprache !== nurSprache) continue;
@@ -44,7 +52,7 @@ for (const sprache of Object.keys(STIMMEN)) {
 			method: 'POST',
 			headers: { Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json', model: MODELL },
 			body: JSON.stringify({
-				text: e[sprache],
+				text: sprechText(e[sprache]),
 				reference_id: STIMMEN[sprache],
 				format: 'mp3',
 				mp3_bitrate: 128,
@@ -55,6 +63,6 @@ for (const sprache of Object.keys(STIMMEN)) {
 		});
 		if (!antwort.ok) throw new Error(`${datei}: ${antwort.status} ${await antwort.text()}`);
 		fs.writeFileSync(datei, Buffer.from(await antwort.arrayBuffer()));
-		console.log('erzeugt  ', datei, `"${e[sprache]}"`);
+		console.log('erzeugt  ', datei, `"${sprechText(e[sprache])}"`);
 	}
 }
