@@ -1,87 +1,88 @@
 <script lang="ts">
-	import { paare } from '../lib/saetze';
+	import { paare, bildLang, audioPfad, sprachen } from '../lib/saetze';
+	import { einstellung, setzeSprache, t } from '../lib/sprache.svelte';
+	import { sprich } from '../lib/audio';
 	import Bild from '../lib/Bild.svelte';
-	import Ueben from '../lib/Ueben.svelte';
 	import Spiel from '../lib/Spiel.svelte';
 
-	type Ansicht = { art: 'start' } | { art: 'ueben'; start: number } | { art: 'spiel' };
-	let ansicht = $state<Ansicht>({ art: 'start' });
+	let spielLaeuft = $state(false);
+
+	$effect(() => {
+		document.documentElement.lang = einstellung.sprache === 'zh' ? 'zh-CN' : 'de';
+	});
 
 	// Zurück-Geste / Zurück-Taste des Handys führt zur Übersicht statt aus der App heraus.
-	function oeffne(a: Ansicht) {
+	function starte() {
 		history.pushState({ spiel: true }, '');
-		ansicht = a;
+		spielLaeuft = true;
 	}
 	function zurueck() {
 		if (history.state?.spiel) history.back();
-		else ansicht = { art: 'start' };
+		else spielLaeuft = false;
 	}
+
+	const sprachName = { de: 'Deutsch', zh: '中文' };
 </script>
 
-<svelte:window onpopstate={() => (ansicht = { art: 'start' })} />
+<svelte:window onpopstate={() => (spielLaeuft = false)} />
 
-{#if ansicht.art === 'ueben'}
-	<Ueben start={ansicht.start} {zurueck} />
-{:else if ansicht.art === 'spiel'}
+{#if spielLaeuft}
 	<Spiel {zurueck} />
 {:else}
-	<div class="mx-auto flex min-h-dvh max-w-3xl flex-col gap-6 pt-safe pb-safe px-safe">
+	<div class="mx-auto flex min-h-dvh max-w-3xl flex-col gap-5 pt-safe pb-safe px-safe">
 		<header class="flex items-center gap-3 pt-2">
-			<span
-				class="grid size-14 place-items-center rounded-2xl bg-brand text-white shadow-md shadow-orange-300"
-				><span class="material-symbols-rounded text-4xl">record_voice_over</span></span
-			>
-			<div>
-				<h1 class="text-3xl leading-none font-black">Satzspiel</h1>
-				<p class="text-sm font-semibold text-stone-500">Kurze Sätze – lange Sätze</p>
+			<span class="grid size-14 shrink-0 place-items-center rounded-2xl bg-brand text-white shadow-md shadow-orange-300">
+				<span class="material-symbols-rounded text-4xl">record_voice_over</span>
+			</span>
+			<div class="min-w-0 flex-1">
+				<h1 class="text-3xl leading-none font-black">{t().titel}</h1>
+				<p class="text-sm font-semibold text-stone-500">{t().untertitel}</p>
 			</div>
 		</header>
 
-		<section class="flex flex-col gap-3">
-			<button
-				class="press flex items-center gap-4 rounded-3xl bg-brand p-5 text-left text-white shadow-lg shadow-orange-300"
-				onclick={() => oeffne({ art: 'spiel' })}
-			>
-				<span class="grid size-16 shrink-0 place-items-center rounded-full bg-white/25">
-					<span class="material-symbols-rounded text-5xl">play_arrow</span>
-				</span>
-				<span>
-					<span class="block text-2xl font-black">Spielen</span>
-					<span class="text-base font-semibold opacity-90">Hör zu – welches Bild passt?</span>
-				</span>
-			</button>
-			<button
-				class="press flex items-center gap-3 rounded-2xl bg-white p-3 text-left shadow-sm"
-				onclick={() => oeffne({ art: 'ueben', start: 0 })}
-			>
-				<span class="grid size-11 shrink-0 place-items-center rounded-full bg-sky-100 text-sky-600">
-					<span class="material-symbols-rounded text-2xl">style</span>
-				</span>
-				<span>
-					<span class="block text-lg font-extrabold">Üben</span>
-					<span class="text-sm font-semibold text-stone-500">Alle Bilder anschauen & anhören</span>
-				</span>
-			</button>
-		</section>
+		<div class="flex rounded-2xl bg-white p-1 shadow-sm" role="radiogroup" aria-label={t().sprache}>
+			{#each sprachen as s}
+				<button
+					role="radio"
+					aria-checked={einstellung.sprache === s}
+					class="press flex h-12 flex-1 items-center justify-center gap-2 rounded-xl text-lg font-extrabold transition-colors {einstellung.sprache ===
+					s
+						? 'bg-sky text-white shadow-sm'
+						: 'text-stone-500'}"
+					onclick={() => setzeSprache(s)}
+				>
+					<span class="material-symbols-rounded text-2xl">translate</span>
+					{sprachName[s]}
+				</button>
+			{/each}
+		</div>
+
+		<button
+			class="press flex items-center gap-4 rounded-3xl bg-brand p-5 text-left text-white shadow-lg shadow-orange-300"
+			onclick={starte}
+		>
+			<span class="grid size-16 shrink-0 place-items-center rounded-full bg-white/25">
+				<span class="material-symbols-rounded text-5xl">play_arrow</span>
+			</span>
+			<span>
+				<span class="block text-2xl font-black">{t().spielen}</span>
+				<span class="text-base font-semibold opacity-90">{t().spielenInfo}</span>
+			</span>
+		</button>
 
 		<section class="flex flex-col gap-3">
-			<h2 class="px-1 text-sm font-extrabold tracking-wide text-stone-400 uppercase">Alle Sätze</h2>
-			<ul class="flex flex-col gap-2">
-				{#each paare as p, i (p.id)}
+			<h2 class="px-1 text-sm font-extrabold tracking-wide text-stone-400 uppercase">{t().alleSaetze}</h2>
+			<ul class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+				{#each paare as p (p.id)}
 					<li>
 						<button
 							class="press flex w-full items-center gap-3 rounded-2xl bg-white p-2 pr-3 text-left shadow-sm"
-							onclick={() => oeffne({ art: 'ueben', start: i })}
+							onclick={() => sprich(audioPfad(p.id, einstellung.sprache), p.satz[einstellung.sprache], einstellung.sprache)}
+							aria-label={t().anhoeren}
 						>
-							<div class="flex w-28 shrink-0 gap-1">
-								<Bild src={p.kurz.bild} alt="" klein />
-								<Bild src={p.lang.bild} alt="" klein />
-							</div>
-							<div class="min-w-0 flex-1">
-								<p class="truncate text-lg font-extrabold">{p.kurz.text}</p>
-								<p class="truncate text-sm font-semibold text-stone-500">{p.lang.text}</p>
-							</div>
-							<span class="material-symbols-rounded text-3xl text-stone-300">chevron_right</span>
+							<div class="w-14 shrink-0"><Bild src={bildLang(p)} alt="" klein /></div>
+							<p class="min-w-0 flex-1 text-lg leading-tight font-extrabold">{p.satz[einstellung.sprache]}</p>
+							<span class="material-symbols-rounded text-3xl text-sky-500">volume_up</span>
 						</button>
 					</li>
 				{/each}

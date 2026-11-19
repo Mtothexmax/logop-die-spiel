@@ -1,42 +1,45 @@
 import { asset } from '$app/paths';
 
 /**
- * Satzpaare: ein kurzer Satz (Subjekt + Verb) und seine Erweiterung.
- * Zu jedem Satz gehören ein Bild (static/bilder/<id>-kurz.webp / -lang.webp)
- * und eine Sprachaufnahme (static/audio/<id>-kurz.mp3 / -lang.mp3).
+ * Satzpaare: Zu jedem Satz gibt es zwei Bilder. Das "kurz"-Bild zeigt nur die Handlung
+ * (Sonja malt), das "lang"-Bild die spezifische Situation (Sonja malt ein Haus).
+ * Vorgelesen wird immer nur der spezifische Satz; das Kind sucht das passende Bild.
+ *
+ * Bilder: static/bilder/<id>-kurz.webp / -lang.webp
+ * Audio:  static/audio/<sprache>/<id>.mp3 (erzeugt mit scripts/audio-erzeugen.mjs)
  */
-export type Satz = { text: string; bild: string; audio: string };
-export type Paar = { id: string; kurz: Satz; lang: Satz };
+export type Sprache = 'de' | 'zh';
+export const sprachen: Sprache[] = ['de', 'zh'];
 
-const rohdaten: [id: string, kurz: string, lang: string][] = [
-	['sonja-malt', 'Sonja malt', 'Sonja malt ein Haus.'],
-	['papa-raucht', 'Papa raucht', 'Es raucht.'],
-	['papa-saegt', 'Papa sägt', 'Papa sägt in der Garage.'],
-	['frosch-springt', 'Der Frosch springt', 'Der Frosch springt hoch.'],
-	['timo-kocht', 'Timo kocht', 'Timo kocht Fisch.'],
-	['oma-naeht', 'Oma näht', 'Oma näht eine Hose.'],
-	['fisch-stinkt', 'Der Fisch stinkt', 'Es stinkt.'],
-	['haus-brennt', 'Das Haus brennt', 'Es brennt.'],
-	['timo-schlaeft', 'Timo schläft', 'Timo schläft im Bett.'],
-	['sonja-spielt', 'Sonja spielt', 'Sonja spielt hinter dem Haus.'],
-	['opa-angelt', 'Opa angelt', 'Opa angelt im See.'],
-	['hasso-frisst', 'Hasso frisst', 'Hasso frisst vor dem Haus.'],
-	['sonja-singt', 'Sonja singt', 'Sonja singt laut.'],
-	['apfel-schmeckt', 'Der Apfel schmeckt', 'Der Apfel schmeckt sauer.'],
-	['timo-faehrt', 'Timo fährt', 'Timo fährt schnell.']
+export type Paar = { id: string; satz: Record<Sprache, string> };
+
+export const paare: Paar[] = [
+	{ id: 'sonja-malt', satz: { de: 'Sonja malt ein Haus.', zh: '索尼娅在画一座房子。' } },
+	{ id: 'papa-raucht', satz: { de: 'Es raucht.', zh: '冒烟了。' } },
+	{ id: 'papa-saegt', satz: { de: 'Papa sägt in der Garage.', zh: '爸爸在车库里锯木头。' } },
+	{ id: 'frosch-springt', satz: { de: 'Der Frosch springt hoch.', zh: '青蛙跳得很高。' } },
+	{ id: 'timo-kocht', satz: { de: 'Timo kocht Fisch.', zh: '蒂莫在煮鱼。' } },
+	{ id: 'oma-naeht', satz: { de: 'Oma näht eine Hose.', zh: '奶奶在缝裤子。' } },
+	{ id: 'fisch-stinkt', satz: { de: 'Es stinkt.', zh: '好臭啊。' } },
+	{ id: 'haus-brennt', satz: { de: 'Es brennt.', zh: '着火了。' } },
+	{ id: 'timo-schlaeft', satz: { de: 'Timo schläft im Bett.', zh: '蒂莫在床上睡觉。' } },
+	{ id: 'sonja-spielt', satz: { de: 'Sonja spielt hinter dem Haus.', zh: '索尼娅在房子后面玩。' } },
+	{ id: 'opa-angelt', satz: { de: 'Opa angelt im See.', zh: '爷爷在湖里钓鱼。' } },
+	{ id: 'hasso-frisst', satz: { de: 'Hasso frisst vor dem Haus.', zh: '哈索在房子前面吃饭。' } },
+	{ id: 'sonja-singt', satz: { de: 'Sonja singt laut.', zh: '索尼娅大声唱歌。' } },
+	{ id: 'apfel-schmeckt', satz: { de: 'Der Apfel schmeckt sauer.', zh: '苹果很酸。' } },
+	{ id: 'timo-faehrt', satz: { de: 'Timo fährt schnell.', zh: '蒂莫骑车骑得很快。' } }
 ];
 
-export const paare: Paar[] = rohdaten.map(([id, kurz, lang]) => ({
-	id,
-	kurz: { text: kurz, bild: `bilder/${id}-kurz.webp`, audio: `audio/${id}-kurz.mp3` },
-	lang: { text: lang, bild: `bilder/${id}-lang.webp`, audio: `audio/${id}-lang.mp3` }
-}));
+/** Rückmeldungen der Stimme; gleiche Struktur wie ein Satz, damit das Audio-Skript sie mitnimmt. */
+export const rueckmeldungen: Paar[] = [
+	{ id: 'richtig', satz: { de: 'Richtig!', zh: '答对了！' } },
+	{ id: 'nochmal', satz: { de: "Probier's nochmal!", zh: '再试一次！' } }
+];
+
+export const bildKurz = (p: Paar) => `bilder/${p.id}-kurz.webp`;
+export const bildLang = (p: Paar) => `bilder/${p.id}-lang.webp`;
+export const audioPfad = (id: string, sprache: Sprache) => `audio/${sprache}/${id}.mp3`;
 
 /** Pfad zu einer Datei in static/, auch unter dem GitHub-Pages-Unterpfad. */
 export const datei = (pfad: string) => asset(pfad as Parameters<typeof asset>[0]);
-
-/** Rückmeldungen der Stimme im Spiel. */
-export const rueckmeldung = {
-	richtig: { text: 'Richtig!', audio: 'audio/richtig.mp3' },
-	nochmal: { text: "Probier's nochmal!", audio: 'audio/nochmal.mp3' }
-};

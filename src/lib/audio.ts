@@ -5,7 +5,7 @@ let aktuell: HTMLAudioElement | null = null;
 let abbrechen: (() => void) | null = null;
 
 /** Spielt die Aufnahme eines Satzes ab; fehlt sie, liest der Browser den Text vor. */
-export function sprich(audioPfad: string, text: string): Promise<void> {
+export function sprich(audioPfad: string, text: string, sprache = 'de'): Promise<void> {
 	stopp();
 	return new Promise((aufloesen) => {
 		const fertig = () => {
@@ -20,7 +20,7 @@ export function sprich(audioPfad: string, text: string): Promise<void> {
 		const fehler = () => {
 			if (ersatz || aktuell !== el) return fertig();
 			ersatz = true;
-			vorlesen(text).then(fertig);
+			vorlesen(text, sprache).then(fertig);
 		};
 		el.onended = () => fertig();
 		el.onerror = fehler;
@@ -42,11 +42,11 @@ export function stopp() {
 	abbrechen?.();
 }
 
-function vorlesen(text: string): Promise<void> {
+function vorlesen(text: string, sprache: string): Promise<void> {
 	return new Promise((fertig) => {
 		if (typeof speechSynthesis === 'undefined') return fertig();
 		const u = new SpeechSynthesisUtterance(text);
-		u.lang = 'de-DE';
+		u.lang = sprache === 'zh' ? 'zh-CN' : 'de-DE';
 		u.rate = 0.85;
 		u.onend = u.onerror = () => fertig();
 		speechSynthesis.speak(u);

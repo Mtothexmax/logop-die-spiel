@@ -10,6 +10,10 @@
 	--color-ink: #1c1917;
 }
 
+:root {
+	color-scheme: only light;
+}
+
 html,
 body {
 	height: 100%;

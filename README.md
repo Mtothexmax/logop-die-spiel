@@ -1,8 +1,9 @@
 # Satzspiel – Logopädie
 
-Mobiles Spiel zur Satzerweiterung: Das Kind hört einen Satz („Sonja malt ein Haus.“) und tippt
-auf das passende Bild. Zur Auswahl stehen immer das Bild zum kurzen Satz („Sonja malt“) und das
-Bild zum langen Satz. Die Stimme sagt dann „Richtig!“ oder „Probier's nochmal!“.
+Mobiles Spiel zur Satzerweiterung: Das Kind hört den spezifischen Satz („Sonja malt ein Haus.“)
+und tippt auf das passende Bild. Zur Auswahl stehen das Bild zum spezifischen Satz und das Bild,
+das nur die Handlung zeigt („Sonja malt“). Die Stimme sagt dann „Richtig!“ oder „Probier's nochmal!“.
+Sprachen: Deutsch und Chinesisch (umschaltbar auf der Startseite).
 
 Live: https://mtothexmax.github.io/logop-die-spiel/
 
@@ -18,8 +19,8 @@ npm run dev
 - Sätze: `src/lib/saetze.ts`
 - Bilder: `static/bilder/<id>-kurz.webp` / `<id>-lang.webp`
   Aus 2×2-Bildtafeln erzeugen: `node scripts/bilder-zuschneiden.cjs <ordner>`
-- Sprache (Fish Audio, Modell `s2.1-pro-free`): `static/audio/*.mp3`
-  Neu erzeugen: `$env:FISH_API_KEY = "..."; node scripts/audio-erzeugen.mjs` (`--neu` überschreibt)
+- Sprache (Fish Audio, Modell `s2.1-pro-free`): `static/audio/<de|zh>/<id>.mp3`
+  Erzeugen: `$env:FISH_API_KEY = "..."; node scripts/audio-erzeugen.mjs` (`--neu` überschreibt, `--sprache zh`, `--nur <id>`)
 
 ## Veröffentlichen (GitHub Pages aus `docs/`)
 
