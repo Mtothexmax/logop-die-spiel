@@ -34,8 +34,9 @@ const eintraege = [
 
 // Betonung am Satzende nach unten: Punkt wird für die Stimme zum Ausrufezeichen,
 // Ausrufezeichen zum Punkt (der angezeigte Text bleibt unverändert).
+// Ausnahme "richtig": soll freudig klingen, bleibt mit Ausrufezeichen.
 const tausch = { '.': '!', '!': '.', '。': '！', '！': '。' };
-const sprechText = (t) => t.replace(/[.!。！]$/, (z) => tausch[z]);
+const sprechText = (t, id) => (id === 'richtig' ? t : t.replace(/[.!。！]$/, (z) => tausch[z]));
 
 for (const sprache of Object.keys(STIMMEN)) {
 	if (nurSprache && sprache !== nurSprache) continue;
@@ -52,7 +53,7 @@ for (const sprache of Object.keys(STIMMEN)) {
 			method: 'POST',
 			headers: { Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json', model: MODELL },
 			body: JSON.stringify({
-				text: sprechText(e[sprache]),
+				text: sprechText(e[sprache], e.id),
 				reference_id: STIMMEN[sprache],
 				format: 'mp3',
 				mp3_bitrate: 128,
@@ -63,6 +64,6 @@ for (const sprache of Object.keys(STIMMEN)) {
 		});
 		if (!antwort.ok) throw new Error(`${datei}: ${antwort.status} ${await antwort.text()}`);
 		fs.writeFileSync(datei, Buffer.from(await antwort.arrayBuffer()));
-		console.log('erzeugt  ', datei, `"${sprechText(e[sprache])}"`);
+		console.log('erzeugt  ', datei, `"${sprechText(e[sprache], e.id)}"`);
 	}
 }
